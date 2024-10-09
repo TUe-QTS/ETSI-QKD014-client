@@ -1,0 +1,16 @@
+[package]
+name = "etsi014-cli"
+version = "0.1.0"
+edition = "2021"
+description = "ETSI GS QKD 014 client command-line interface"
+license = "MIT"
+
+[dependencies]
+clap = { version = "4.5.16", features = ["derive"] }
+etsi014-client = { path = "../library" }
+hex = "0.4"
+tokio = { version = "1.39.3", features = ["macros"] }
+
+[[bin]]
+name = "etsi014-cli"
+path = "src/main.rs"

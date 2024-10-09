@@ -1,0 +1,12 @@
+[workspace]
+members = [
+    "binary",
+    "library",
+]
+resolver = "2"
+
+# Reduce binary size
+[profile.release]
+strip = true
+lto = true
+codegen-units = 1
