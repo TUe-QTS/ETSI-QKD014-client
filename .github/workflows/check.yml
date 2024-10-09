@@ -1,0 +1,28 @@
+name: check
+on:
+  push:
+  pull_request:
+
+jobs:
+  check:
+    name: Build, lint, check formatting
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get install -y libsodium-dev
+      - run: cargo build
+      - run: cargo clippy
+      - run: cargo fmt --check
+      - name: Install shared library
+        run: |
+          sudo cp target/debug/libetsi014_client.so /usr/local/lib/libetsi014_client.so
+          sudo mkdir /usr/local/include/etsi014-client/
+          sudo cp library/c/etsi014-client.h /usr/local/include/etsi014-client/etsi014-client.h
+      - name: Build C example
+        run: |
+          cd examples/c
+          cp src/config.example.h src/config.h
+          mkdir build
+          cd build
+          cmake -DCMAKE_BUILD_TYPE=Debug ..
+          make
