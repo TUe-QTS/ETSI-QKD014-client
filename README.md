@@ -90,3 +90,19 @@ This project is licensed under the [MIT license](LICENSE).
 ## Contributing
 
 Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in this crate by you, as defined in the Apache-2.0 license, shall be dual licensed under the [MIT license](LICENSE) and the [Apache-2.0 license](https://www.apache.org/licenses/LICENSE-2.0.txt), without any additional terms or conditions.
+
+## BibLaTex Citation
+
+To cite this project, we recommend the following:
+
+```
+@software{aquina_etsi_qkd_014_2024,
+          title = {{ETSI} {GS} {QKD} 014 client command-line program and library for {Rust} and {C}},
+          rights = {{MIT} License},
+          url = {https://doi.org/10.4121/3618fc0a-6b89-46c3-8199-5cf5bdb46a29},
+          publisher = {4TU.{ResearchData}},
+          author = {Aquina, Nick and Rommel, Simon and Tafur Monroy, Idelfonso},
+          date = {2024},
+          doi = {10.4121/3618FC0A-6B89-46C3-8199-5CF5BDB46A29},
+}
+```
