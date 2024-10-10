@@ -3,6 +3,7 @@ name = "etsi014-cli"
 version = "0.1.0"
 edition = "2021"
 description = "ETSI GS QKD 014 client command-line interface"
+repository = "https://github.com/TUe-QTS/ETSI-QKD014-client"
 license = "MIT"
 
 [dependencies]
