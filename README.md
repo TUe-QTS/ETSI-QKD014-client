@@ -1,6 +1,8 @@
 # ETSI GS QKD 014 client command-line program and library for Rust and C
 
-There are 3 ways to use the client: as a command-line program, as a Rust crate or as a C library.
+[![DOI](https://data.4tu.nl/v3/datasets/3618fc0a-6b89-46c3-8199-5cf5bdb46a29/doi-badge.svg)](https://doi.org/10.4121/3618fc0a-6b89-46c3-8199-5cf5bdb46a29)
+
+Quantum Key Distribution (QKD) hardware provides cryptographic keys that can be used to secure confidential data. This software allows to request keys exchanged using QKD from QKD hardware or a Key Management System by following the ETSI GS QKD 014 standard. It is then up to the user of this library to use these keys to encrypt data. There are 3 ways to use the client: as a command-line program, as a Rust crate or as a C library.
 
 ## Dependencies
 
