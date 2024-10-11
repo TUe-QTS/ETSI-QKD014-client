@@ -2,7 +2,7 @@
 
 ### Building and installing
 
-[Install the etsi014-client library](../../REAMDE.md)
+[Install the etsi014-client library](../../README.md)
 
 ```bash
 cp src/config.example.h src/config.h
