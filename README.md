@@ -8,11 +8,19 @@ Quantum Key Distribution (QKD) hardware provides cryptographic keys that can be 
 ## Dependencies
 
 Install [Rust](https://www.rust-lang.org/tools/install).
-Then install libsodium:
+Then [install libsodium](https://doc.libsodium.org/installation):
+
+### Debian
 
 ```bash
 sudo apt install libsodium-dev
 ```
+
+### Windows
+
+1. Download the latest [libsodium release](https://download.libsodium.org/libsodium/releases/libsodium-1.0.20-stable-msvc.zip).
+2. Copy `libsodium\x64\Release\v143\dynamic\libsodium.dll` into `C:\Windows\System32\`.
+3. Copy  `libsodium\x64\Release\v143\dynamic\libsodium.lib` into `C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\lib\x64` and rename it to `sodium.lib`.
 
 ## Command-line program
 
