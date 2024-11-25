@@ -48,7 +48,7 @@ key_size=256
 Requesting new keys:
 
 ```
-$ etsi014-cli --host kms.example.org --port 443 --key client-1.key --cert client-1.crt --server-ca /usr/share/ca-certificates/mozilla/ISRG_Root_X1.crt --target-sae-id client-2 get-keys --amount 3 --key-size 256
+$ etsi014-cli --host kms.example.org --port 443 --key client-1.key --cert client-1.crt --server-ca server-ca.crt --target-sae-id client-2 get-keys --amount 3 --key-size 256
 851884a2-57c3-4b83-876e-6de27882d003=1ca3bcde45f880df267c0c70110921c77c442b28400e2f67ba2f84d408aa2a1c
 16771d3f-994b-4850-aa5e-86138544a4a6=4b1a4cd007e672f8e662d72e8c62c146c36485668cfbddb2245c113d551b41fa
 b81bfeec-c35f-45e1-a394-361da46f3dcb=1b7bc8a5c3a4a994bb6e1e69005c595c206116e381f8670b168024a028d21277
@@ -57,7 +57,7 @@ b81bfeec-c35f-45e1-a394-361da46f3dcb=1b7bc8a5c3a4a994bb6e1e69005c595c206116e381f
 Requesting keys by UUID:
 
 ```bash
-$ etsi014-cli --host kms.example.org --port 443 --key client-2.key --cert client-2.crt --server-ca /usr/share/ca-certificates/mozilla/ISRG_Root_X1.crt --target-sae-id client-1 get-keys-by-ids --ids=851884a2-57c3-4b83-876e-6de27882d003,16771d3f-994b-4850-aa5e-86138544a4a6,b81bfeec-c35f-45e1-a394-361da46f3dcb
+$ etsi014-cli --host kms.example.org --port 443 --key client-2.key --cert client-2.crt --server-ca server-ca.crt --target-sae-id client-1 get-keys-by-ids --ids=851884a2-57c3-4b83-876e-6de27882d003,16771d3f-994b-4850-aa5e-86138544a4a6,b81bfeec-c35f-45e1-a394-361da46f3dcb
 851884a2-57c3-4b83-876e-6de27882d003=1ca3bcde45f880df267c0c70110921c77c442b28400e2f67ba2f84d408aa2a1c
 16771d3f-994b-4850-aa5e-86138544a4a6=4b1a4cd007e672f8e662d72e8c62c146c36485668cfbddb2245c113d551b41fa
 b81bfeec-c35f-45e1-a394-361da46f3dcb=1b7bc8a5c3a4a994bb6e1e69005c595c206116e381f8670b168024a028d21277

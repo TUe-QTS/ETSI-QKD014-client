@@ -2,7 +2,7 @@
 #define HOST "kms.example.org"
 #define PORT 443
 #define KEY_SIZE_BITS 256
-#define SERVER_CA "/usr/share/ca-certificates/mozilla/ISRG_Root_X1.crt"
+#define SERVER_CA "server-ca.crt"
 
 #define SAE_ID_1 "client-1"
 #define KEY_1 "client-1.key"
