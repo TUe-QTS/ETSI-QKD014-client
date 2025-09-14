@@ -53,6 +53,8 @@ pub unsafe fn create_cstr<const SIZE: usize>(s: String) -> Result<[c_char; SIZE]
     Ok(r)
 }
 
+/// If this function returns a 0, the caller must call [`e14_free_etsi014_client`]. Otherwise,
+/// the caller must call [`e14_free_error_str`].
 #[no_mangle]
 pub unsafe extern "C" fn e14_new_etsi014_client(
     host: *const c_char,
@@ -131,6 +133,7 @@ fn block_on<F: Future>(future: F) -> F::Output {
         .block_on(future)
 }
 
+/// If this function returns a 1, the caller must call [`e14_free_error_str`].
 #[no_mangle]
 pub unsafe extern "C" fn e14_get_status(
     client: *const ETSI014Client,
@@ -238,10 +241,9 @@ unsafe fn key_vec_to_ckey(uuid: [c_char; SAE_ID_LENGTH], key_vec: SecretVec<u8>)
     }
 }
 
-/// If functions returns a 0, the caller must call [`e14_free_etsi014_client`]. Otherwise,
-/// the caller must call [`e14_free_error_str`]. Before using a qkd key, the caller must call
-/// [`e14_unprotect_qkd_key_bytes`]. After a qkd key is not necessary anymore, the caller must
-/// call [`e14_free_qkd_key_bytes`].
+/// If this function returns a 1, the caller must call [`e14_free_error_str`]. Before using a qkd
+/// key, the caller must call [`e14_unprotect_qkd_key_bytes`]. After a qkd key is not necessary
+/// anymore, the caller must call [`e14_free_qkd_key_bytes`].
 #[no_mangle]
 pub unsafe extern "C" fn e14_get_keys(
     client: *const ETSI014Client,

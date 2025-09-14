@@ -35,6 +35,10 @@ typedef struct E14_QKD_Key {
     const struct E14_KeyBytesProtected *key_bytes_protected;
 } E14_QKD_Key;
 
+/**
+ * If this function returns a 0, the caller must call [`e14_free_etsi014_client`]. Otherwise,
+ * the caller must call [`e14_free_error_str`].
+ */
 int e14_new_etsi014_client(const char *host,
                            uint16_t port,
                            const char *cert_path,
@@ -43,16 +47,18 @@ int e14_new_etsi014_client(const char *host,
                            const struct E14_Client **etsi014_client,
                            const char **error_str);
 
+/**
+ * If this function returns a 1, the caller must call [`e14_free_error_str`].
+ */
 int e14_get_status(const struct E14_Client *client,
                    const char *target_sae_id,
                    struct E14_KME_Status *status,
                    const char **error_str);
 
 /**
- * If functions returns a 0, the caller must call [`e14_free_etsi014_client`]. Otherwise,
- * the caller must call [`e14_free_error_str`]. Before using a qkd key, the caller must call
- * [`e14_unprotect_qkd_key_bytes`]. After a qkd key is not necessary anymore, the caller must
- * call [`e14_free_qkd_key_bytes`].
+ * If this function returns a 1, the caller must call [`e14_free_error_str`]. Before using a qkd
+ * key, the caller must call [`e14_unprotect_qkd_key_bytes`]. After a qkd key is not necessary
+ * anymore, the caller must call [`e14_free_qkd_key_bytes`].
  */
 int e14_get_keys(const struct E14_Client *client,
                  uint32_t key_size_bits,
