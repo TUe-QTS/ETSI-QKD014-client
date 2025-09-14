@@ -9,11 +9,11 @@
 
 #define SAE_ID_LENGTH 37
 
-typedef struct ETSI014Client ETSI014Client;
+typedef struct E14_Client E14_Client;
 
-typedef struct KeyBytesBorrow KeyBytesBorrow;
+typedef struct E14_KeyBytesBorrow E14_KeyBytesBorrow;
 
-typedef struct KeyBytesProtected KeyBytesProtected;
+typedef struct E14_KeyBytesProtected E14_KeyBytesProtected;
 
 typedef struct E14_KME_Status {
     char source_kme_id[255];
@@ -32,7 +32,7 @@ typedef struct E14_KME_Status {
 typedef struct E14_QKD_Key {
     char uuid[SAE_ID_LENGTH];
     uint32_t key_size;
-    const struct KeyBytesProtected *key_bytes_protected;
+    const struct E14_KeyBytesProtected *key_bytes_protected;
 } E14_QKD_Key;
 
 int e14_new_etsi014_client(const char *host,
@@ -40,10 +40,10 @@ int e14_new_etsi014_client(const char *host,
                            const char *cert_path,
                            const char *key_path,
                            const char *server_ca_path,
-                           const struct ETSI014Client **etsi014_client,
+                           const struct E14_Client **etsi014_client,
                            const char **error_str);
 
-int e14_get_status(const struct ETSI014Client *client,
+int e14_get_status(const struct E14_Client *client,
                    const char *target_sae_id,
                    struct E14_KME_Status *status,
                    const char **error_str);
@@ -54,7 +54,7 @@ int e14_get_status(const struct ETSI014Client *client,
  * [`e14_unprotect_qkd_key_bytes`]. After a qkd key is not necessary anymore, the caller must
  * call [`e14_free_qkd_key_bytes`].
  */
-int e14_get_keys(const struct ETSI014Client *client,
+int e14_get_keys(const struct E14_Client *client,
                  uint32_t key_size_bits,
                  const char *target_sae_id,
                  const char *_additional_target_sae_ids,
@@ -66,7 +66,7 @@ int e14_get_keys(const struct ETSI014Client *client,
 /**
  * Documentation of function [`e14_get_keys`] also applies to this function.
  */
-int e14_get_keys_by_ids(const struct ETSI014Client *client,
+int e14_get_keys_by_ids(const struct E14_Client *client,
                         const char *target_sae_id,
                         char **key_ids,
                         size_t key_ids_len,
@@ -81,21 +81,21 @@ int e14_get_keys_by_ids(const struct ETSI014Client *client,
  * * before calling this function again.
  * * before calling [`e14_free_qkd_key_bytes`].
  */
-void e14_unprotect_qkd_key_bytes(const struct KeyBytesProtected *key_bytes_protected,
-                                 const struct KeyBytesBorrow **key_bytes_borrow,
+void e14_unprotect_qkd_key_bytes(const struct E14_KeyBytesProtected *key_bytes_protected,
+                                 const struct E14_KeyBytesBorrow **key_bytes_borrow,
                                  const uint8_t **key_bytes);
 
 /**
  * Prevent read and write access to key_bytes.
  */
-void e14_protect_qkd_key_bytes(const struct KeyBytesBorrow **borrow,
+void e14_protect_qkd_key_bytes(const struct E14_KeyBytesBorrow **borrow,
                                const uint8_t **key_bytes);
 
 /**
  * Will overwrite qkd key and deallocate memory.
  */
-void e14_free_qkd_key_bytes(const struct KeyBytesProtected **key_bytes_protected);
+void e14_free_qkd_key_bytes(const struct E14_KeyBytesProtected **key_bytes_protected);
 
 void e14_free_error_str(const char **error_str);
 
-void e14_free_etsi014_client(const struct ETSI014Client **client);
+void e14_free_etsi014_client(const struct E14_Client **client);

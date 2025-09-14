@@ -7,5 +7,8 @@ tab_width = 4
 documentation = true
 
 [export.rename]
+"ETSI014Client" = "E14_Client"
 "CStatus" = "E14_KME_Status"
 "CKey" = "E14_QKD_Key"
+"KeyBytesBorrow" = "E14_KeyBytesBorrow"
+"KeyBytesProtected" = "E14_KeyBytesProtected"

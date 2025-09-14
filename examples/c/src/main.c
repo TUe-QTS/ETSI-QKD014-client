@@ -9,7 +9,7 @@
 
 int main(void)
 {
-    const ETSI014Client* client = NULL;
+    const E14_Client* client = NULL;
     const char* error_str = NULL;
     if (e14_new_etsi014_client(
             HOST, PORT, CERT_1, KEY_1, SERVER_CA, &client, &error_str)) {
@@ -55,10 +55,10 @@ int main(void)
         assert(strcmp(keys1[i].uuid, keys2[i].uuid) == 0);
         assert(keys1[i].key_size == KEY_SIZE_BYTES);
         assert(keys2[i].key_size == KEY_SIZE_BYTES);
-        const KeyBytesBorrow* borrow1;
+        const E14_KeyBytesBorrow* borrow1;
         const uint8_t* key_bytes1;
         e14_unprotect_qkd_key_bytes(keys1[i].key_bytes_protected, &borrow1, &key_bytes1);
-        const KeyBytesBorrow* borrow2;
+        const E14_KeyBytesBorrow* borrow2;
         const uint8_t* key_bytes2;
         e14_unprotect_qkd_key_bytes(keys2[i].key_bytes_protected, &borrow2, &key_bytes2);
         // Warning: constant time compare should be used on keys instead of memcmp
