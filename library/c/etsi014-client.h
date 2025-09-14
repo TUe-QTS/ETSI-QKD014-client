@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#define SAE_ID_LENGTH 37
+#define KEY_UUID_LENGTH 37
 
 typedef struct E14_Client E14_Client;
 
@@ -30,7 +30,7 @@ typedef struct E14_KME_Status {
 } E14_KME_Status;
 
 typedef struct E14_QKD_Key {
-    char uuid[SAE_ID_LENGTH];
+    char uuid[KEY_UUID_LENGTH];
     uint32_t key_size;
     const struct E14_KeyBytesProtected *key_bytes_protected;
 } E14_QKD_Key;

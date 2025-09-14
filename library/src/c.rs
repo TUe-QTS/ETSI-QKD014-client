@@ -6,7 +6,7 @@ use std::ffi::{c_int, CStr, CString};
 use std::future::Future;
 use std::path::PathBuf;
 
-pub const SAE_ID_LENGTH: usize = 37;
+pub const KEY_UUID_LENGTH: usize = 37;
 
 #[repr(C)]
 pub struct CStatus {
@@ -226,12 +226,15 @@ pub struct KeyBytesBorrow {}
 
 #[repr(C)]
 pub struct CKey {
-    pub uuid: [c_char; SAE_ID_LENGTH],
+    pub uuid: [c_char; KEY_UUID_LENGTH],
     pub key_size: u32,
     pub key_bytes_protected: *const KeyBytesProtected,
 }
 
-unsafe fn key_vec_to_ckey(uuid: [c_char; SAE_ID_LENGTH], key_vec: SecretVec<u8>) -> CKey {
+unsafe fn key_vec_to_ckey(
+    uuid: [c_char; KEY_UUID_LENGTH],
+    key_vec: SecretVec<u8>,
+) -> CKey {
     let key_size = key_vec.len() as u32;
     let key_vec_ptr: *mut SecretVec<u8> = Box::into_raw(Box::new(key_vec));
     CKey {
