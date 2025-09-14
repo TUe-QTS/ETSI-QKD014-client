@@ -352,11 +352,11 @@ pub unsafe extern "C" fn e14_get_keys_by_ids(
     let mut key_ids_vec = Vec::with_capacity(key_ids_len);
     let key_ids = std::slice::from_raw_parts(key_ids, key_ids_len);
     for (i, &ptr) in key_ids.iter().enumerate() {
-        let sae_id = match CStr::from_ptr(ptr).to_str() {
+        let key_id = match CStr::from_ptr(ptr).to_str() {
             Ok(id) => id,
             Err(utf8error) => {
                 let error = Error::new(
-                    format!("SAE ID {i} is not valid UTF8"),
+                    format!("Key ID {i} is not valid UTF8"),
                     InvalidArgument,
                     Some(Box::new(utf8error)),
                 );
@@ -364,7 +364,7 @@ pub unsafe extern "C" fn e14_get_keys_by_ids(
                 return 1;
             }
         };
-        key_ids_vec.push(sae_id);
+        key_ids_vec.push(key_id);
     }
     let keys = std::slice::from_raw_parts_mut(keys, key_ids_len);
     let get_keys_result =
