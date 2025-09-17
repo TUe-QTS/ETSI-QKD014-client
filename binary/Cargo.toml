@@ -7,10 +7,10 @@ repository = "https://github.com/TUe-QTS/ETSI-QKD014-client"
 license = "MIT"
 
 [dependencies]
-clap = { version = "4.5.30", features = ["derive"] }
+clap = { version = "4.5.47", features = ["derive"] }
 etsi014-client = { path = "../library" }
-hex = "0.4"
-tokio = { version = "1.43.0", features = ["macros"] }
+hex = "0.4.3"
+tokio = { version = "1.47.1", features = ["macros"] }
 
 [[bin]]
 name = "etsi014-cli"
