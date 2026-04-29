@@ -218,10 +218,10 @@ pub unsafe extern "C" fn e14_get_status(
     }
 }
 
-#[repr(packed)]
+#[repr(C, packed)]
 pub struct KeyBytesProtected {}
 
-#[repr(packed)]
+#[repr(C, packed)]
 pub struct KeyBytesBorrow {}
 
 #[repr(C)]

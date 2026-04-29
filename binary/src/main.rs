@@ -40,7 +40,7 @@ async fn cli() -> Result<(), Error> {
     match cli.command {
         Status => {
             let s = client.get_status(&cli.target_sae_id).await?;
-            Ok(println!(
+            println!(
                 "source_KME_ID={}\n\
                 target_KME_ID={}\n\
                 source_SAE_ID={}\n\
@@ -63,7 +63,8 @@ async fn cli() -> Result<(), Error> {
                 s.max_key_size,
                 s.min_key_size,
                 s.max_sae_id_count,
-            ))
+            );
+            Ok(())
         }
         GetKeys {
             key_size_bits,
