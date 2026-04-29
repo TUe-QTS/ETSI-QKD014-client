@@ -89,9 +89,8 @@ pub mod etsi014_client {
                     )
                 })?;
             let http_client = Client::builder()
-                .use_native_tls()
-                .tls_built_in_root_certs(false)
-                .add_root_certificate(server_ca)
+                .tls_backend_native()
+                .tls_certs_only([server_ca])
                 .identity(identity)
                 .build()
                 .map_err(|e| {
