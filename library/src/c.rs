@@ -2,7 +2,7 @@ use crate::error::ErrorType::{InvalidArgument, InvalidHost, InvalidResponse};
 use crate::{ETSI014Client, Error};
 use libc::{c_char, size_t};
 use secrets::SecretVec;
-use std::ffi::{c_int, CStr, CString};
+use std::ffi::{CStr, CString, c_int};
 use std::future::Future;
 use std::path::PathBuf;
 
@@ -55,7 +55,7 @@ pub unsafe fn create_cstr<const SIZE: usize>(s: String) -> Result<[c_char; SIZE]
 
 /// If this function returns a 0, the caller must call [`e14_free_etsi014_client`]. Otherwise,
 /// the caller must call [`e14_free_error_str`].
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn e14_new_etsi014_client(
     host: *const c_char,
     port: u16,
@@ -65,62 +65,64 @@ pub unsafe extern "C" fn e14_new_etsi014_client(
     etsi014_client: *mut *const ETSI014Client,
     error_str: *mut *const c_char,
 ) -> c_int {
-    let host = match CStr::from_ptr(host).to_str() {
-        Ok(h) => h,
-        Err(utf8error) => {
-            let error = Error::new(
-                "Host is not valid UTF8".to_string(),
-                InvalidHost,
-                Some(Box::new(utf8error)),
-            );
-            *error_str = create_error_cstr(error);
-            return 1;
-        }
-    };
-    let cert_path = match CStr::from_ptr(cert_path).to_str() {
-        Ok(s) => PathBuf::from(s),
-        Err(utf8error) => {
-            let error = Error::new(
-                "cert_path is not valid UTF8".to_string(),
-                InvalidHost,
-                Some(Box::new(utf8error)),
-            );
-            *error_str = create_error_cstr(error);
-            return 1;
-        }
-    };
-    let key_path = match CStr::from_ptr(key_path).to_str() {
-        Ok(s) => PathBuf::from(s),
-        Err(utf8error) => {
-            let error = Error::new(
-                "key_path is not valid UTF8".to_string(),
-                InvalidHost,
-                Some(Box::new(utf8error)),
-            );
-            *error_str = create_error_cstr(error);
-            return 1;
-        }
-    };
-    let server_ca_path = match CStr::from_ptr(server_ca_path).to_str() {
-        Ok(s) => PathBuf::from(s),
-        Err(utf8error) => {
-            let error = Error::new(
-                "server_ca_path is not valid UTF8".to_string(),
-                InvalidHost,
-                Some(Box::new(utf8error)),
-            );
-            *error_str = create_error_cstr(error);
-            return 1;
-        }
-    };
-    match ETSI014Client::new(host, port, &cert_path, &key_path, &server_ca_path) {
-        Ok(client) => {
-            *etsi014_client = Box::into_raw(Box::new(client));
-            0
-        }
-        Err(e) => {
-            *error_str = create_error_cstr(e);
-            1
+    unsafe {
+        let host = match CStr::from_ptr(host).to_str() {
+            Ok(h) => h,
+            Err(utf8error) => {
+                let error = Error::new(
+                    "Host is not valid UTF8".to_string(),
+                    InvalidHost,
+                    Some(Box::new(utf8error)),
+                );
+                *error_str = create_error_cstr(error);
+                return 1;
+            }
+        };
+        let cert_path = match CStr::from_ptr(cert_path).to_str() {
+            Ok(s) => PathBuf::from(s),
+            Err(utf8error) => {
+                let error = Error::new(
+                    "cert_path is not valid UTF8".to_string(),
+                    InvalidHost,
+                    Some(Box::new(utf8error)),
+                );
+                *error_str = create_error_cstr(error);
+                return 1;
+            }
+        };
+        let key_path = match CStr::from_ptr(key_path).to_str() {
+            Ok(s) => PathBuf::from(s),
+            Err(utf8error) => {
+                let error = Error::new(
+                    "key_path is not valid UTF8".to_string(),
+                    InvalidHost,
+                    Some(Box::new(utf8error)),
+                );
+                *error_str = create_error_cstr(error);
+                return 1;
+            }
+        };
+        let server_ca_path = match CStr::from_ptr(server_ca_path).to_str() {
+            Ok(s) => PathBuf::from(s),
+            Err(utf8error) => {
+                let error = Error::new(
+                    "server_ca_path is not valid UTF8".to_string(),
+                    InvalidHost,
+                    Some(Box::new(utf8error)),
+                );
+                *error_str = create_error_cstr(error);
+                return 1;
+            }
+        };
+        match ETSI014Client::new(host, port, &cert_path, &key_path, &server_ca_path) {
+            Ok(client) => {
+                *etsi014_client = Box::into_raw(Box::new(client));
+                0
+            }
+            Err(e) => {
+                *error_str = create_error_cstr(e);
+                1
+            }
         }
     }
 }
@@ -134,86 +136,88 @@ fn block_on<F: Future>(future: F) -> F::Output {
 }
 
 /// If this function returns a 1, the caller must call [`e14_free_error_str`].
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn e14_get_status(
     client: *const ETSI014Client,
     target_sae_id: *const c_char,
     status: *mut CStatus,
     error_str: *mut *const c_char,
 ) -> c_int {
-    let client = match client.as_ref() {
-        Some(client) => client,
-        None => {
-            let error = Error::new(
-                "Null pointer passed to get_status".to_string(),
-                InvalidArgument,
-                None,
-            );
-            *error_str = create_error_cstr(error);
-            return 1;
-        }
-    };
-    let target_sae_id = match CStr::from_ptr(target_sae_id).to_str() {
-        Ok(id) => id,
-        Err(utf8error) => {
-            let error = Error::new(
-                "target_sae_id is not valid UTF8".to_string(),
-                InvalidArgument,
-                Some(Box::new(utf8error)),
-            );
-            *error_str = create_error_cstr(error);
-            return 1;
-        }
-    };
-    let status_result = block_on(client.get_status(target_sae_id));
-    match status_result {
-        Ok(s) => {
-            let source_kme_id = match create_cstr(s.source_kme_id) {
-                Ok(s) => s,
-                Err(e) => {
-                    *error_str = create_error_cstr(e);
-                    return 1;
-                }
-            };
-            let target_kme_id = match create_cstr(s.target_kme_id) {
-                Ok(s) => s,
-                Err(e) => {
-                    *error_str = create_error_cstr(e);
-                    return 1;
-                }
-            };
-            let source_sae_id = match create_cstr(s.source_sae_id) {
-                Ok(s) => s,
-                Err(e) => {
-                    *error_str = create_error_cstr(e);
-                    return 1;
-                }
-            };
-            let target_sae_id = match create_cstr(s.target_sae_id) {
-                Ok(s) => s,
-                Err(e) => {
-                    *error_str = create_error_cstr(e);
-                    return 1;
-                }
-            };
-            *status = CStatus {
-                source_kme_id,
-                target_kme_id,
-                source_sae_id,
-                target_sae_id,
-                key_size: s.key_size,
-                stored_key_count: s.stored_key_count,
-                max_key_count: s.max_key_count,
-                max_key_per_request: s.max_key_per_request,
-                max_key_size: s.max_key_size,
-                min_key_size: s.min_key_size,
-                max_sae_id_count: s.max_sae_id_count,
-            };
-            0
-        }
-        Err(e) => {
-            *error_str = create_error_cstr(e);
-            1
+    unsafe {
+        let client = match client.as_ref() {
+            Some(client) => client,
+            None => {
+                let error = Error::new(
+                    "Null pointer passed to get_status".to_string(),
+                    InvalidArgument,
+                    None,
+                );
+                *error_str = create_error_cstr(error);
+                return 1;
+            }
+        };
+        let target_sae_id = match CStr::from_ptr(target_sae_id).to_str() {
+            Ok(id) => id,
+            Err(utf8error) => {
+                let error = Error::new(
+                    "target_sae_id is not valid UTF8".to_string(),
+                    InvalidArgument,
+                    Some(Box::new(utf8error)),
+                );
+                *error_str = create_error_cstr(error);
+                return 1;
+            }
+        };
+        let status_result = block_on(client.get_status(target_sae_id));
+        match status_result {
+            Ok(s) => {
+                let source_kme_id = match create_cstr(s.source_kme_id) {
+                    Ok(s) => s,
+                    Err(e) => {
+                        *error_str = create_error_cstr(e);
+                        return 1;
+                    }
+                };
+                let target_kme_id = match create_cstr(s.target_kme_id) {
+                    Ok(s) => s,
+                    Err(e) => {
+                        *error_str = create_error_cstr(e);
+                        return 1;
+                    }
+                };
+                let source_sae_id = match create_cstr(s.source_sae_id) {
+                    Ok(s) => s,
+                    Err(e) => {
+                        *error_str = create_error_cstr(e);
+                        return 1;
+                    }
+                };
+                let target_sae_id = match create_cstr(s.target_sae_id) {
+                    Ok(s) => s,
+                    Err(e) => {
+                        *error_str = create_error_cstr(e);
+                        return 1;
+                    }
+                };
+                *status = CStatus {
+                    source_kme_id,
+                    target_kme_id,
+                    source_sae_id,
+                    target_sae_id,
+                    key_size: s.key_size,
+                    stored_key_count: s.stored_key_count,
+                    max_key_count: s.max_key_count,
+                    max_key_per_request: s.max_key_per_request,
+                    max_key_size: s.max_key_size,
+                    min_key_size: s.min_key_size,
+                    max_sae_id_count: s.max_sae_id_count,
+                };
+                0
+            }
+            Err(e) => {
+                *error_str = create_error_cstr(e);
+                1
+            }
         }
     }
 }
@@ -247,7 +251,7 @@ unsafe fn key_vec_to_ckey(
 /// If this function returns a 1, the caller must call [`e14_free_error_str`]. Before using a qkd
 /// key, the caller must call [`e14_unprotect_qkd_key_bytes`]. After a qkd key is not necessary
 /// anymore, the caller must call [`e14_free_qkd_key_bytes`].
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn e14_get_keys(
     client: *const ETSI014Client,
     key_size_bits: u32,
@@ -258,68 +262,70 @@ pub unsafe extern "C" fn e14_get_keys(
     keys: *mut CKey,
     error_str: *mut *const c_char,
 ) -> c_int {
-    if additional_target_sae_ids_size != 0 {
-        todo!("additional_target_sae_ids not yet implemented in c bindings");
-    }
-    let client = match client.as_ref() {
-        Some(client) => client,
-        None => {
-            let error = Error::new(
-                "Null pointer passed to get_status".to_string(),
-                InvalidArgument,
-                None,
-            );
-            *error_str = create_error_cstr(error);
-            return 1;
+    unsafe {
+        if additional_target_sae_ids_size != 0 {
+            todo!("additional_target_sae_ids not yet implemented in c bindings");
         }
-    };
-    let target_sae_id = match CStr::from_ptr(target_sae_id).to_str() {
-        Ok(id) => id,
-        Err(utf8error) => {
-            let error = Error::new(
-                "target_sae_id is not valid UTF8".to_string(),
-                InvalidArgument,
-                Some(Box::new(utf8error)),
-            );
-            *error_str = create_error_cstr(error);
-            return 1;
-        }
-    };
-    let keys = std::slice::from_raw_parts_mut(keys, amount_of_keys as usize);
-    let get_keys_result =
-        block_on(client.get_keys(key_size_bits, target_sae_id, &[], amount_of_keys));
-    match get_keys_result {
-        Ok(keys_recv) => {
-            let keys_recv_len = keys_recv.len();
-            if keys_recv_len != amount_of_keys as usize {
-                *error_str = create_error_cstr(Error::new(
-                    format!("Got {keys_recv_len} instead of {amount_of_keys} keys"),
-                    InvalidResponse,
+        let client = match client.as_ref() {
+            Some(client) => client,
+            None => {
+                let error = Error::new(
+                    "Null pointer passed to get_status".to_string(),
+                    InvalidArgument,
                     None,
-                ));
+                );
+                *error_str = create_error_cstr(error);
                 return 1;
             }
-            for (i, (uuid_string, key_vec)) in keys_recv.into_iter().enumerate() {
-                let uuid = match create_cstr(uuid_string) {
-                    Ok(uuid) => uuid,
-                    Err(e) => {
-                        *error_str = create_error_cstr(e);
-                        return 1;
-                    }
-                };
-                keys[i] = key_vec_to_ckey(uuid, key_vec);
+        };
+        let target_sae_id = match CStr::from_ptr(target_sae_id).to_str() {
+            Ok(id) => id,
+            Err(utf8error) => {
+                let error = Error::new(
+                    "target_sae_id is not valid UTF8".to_string(),
+                    InvalidArgument,
+                    Some(Box::new(utf8error)),
+                );
+                *error_str = create_error_cstr(error);
+                return 1;
             }
-            0
-        }
-        Err(e) => {
-            *error_str = create_error_cstr(e);
-            1
+        };
+        let keys = std::slice::from_raw_parts_mut(keys, amount_of_keys as usize);
+        let get_keys_result =
+            block_on(client.get_keys(key_size_bits, target_sae_id, &[], amount_of_keys));
+        match get_keys_result {
+            Ok(keys_recv) => {
+                let keys_recv_len = keys_recv.len();
+                if keys_recv_len != amount_of_keys as usize {
+                    *error_str = create_error_cstr(Error::new(
+                        format!("Got {keys_recv_len} instead of {amount_of_keys} keys"),
+                        InvalidResponse,
+                        None,
+                    ));
+                    return 1;
+                }
+                for (i, (uuid_string, key_vec)) in keys_recv.into_iter().enumerate() {
+                    let uuid = match create_cstr(uuid_string) {
+                        Ok(uuid) => uuid,
+                        Err(e) => {
+                            *error_str = create_error_cstr(e);
+                            return 1;
+                        }
+                    };
+                    keys[i] = key_vec_to_ckey(uuid, key_vec);
+                }
+                0
+            }
+            Err(e) => {
+                *error_str = create_error_cstr(e);
+                1
+            }
         }
     }
 }
 
 /// Documentation of function [`e14_get_keys`] also applies to this function.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn e14_get_keys_by_ids(
     client: *const ETSI014Client,
     target_sae_id: *const c_char,
@@ -328,38 +334,24 @@ pub unsafe extern "C" fn e14_get_keys_by_ids(
     keys: *mut CKey,
     error_str: *mut *const c_char,
 ) -> c_int {
-    let client = match client.as_ref() {
-        Some(client) => client,
-        None => {
-            let error = Error::new(
-                "Null pointer passed to get_status".to_string(),
-                InvalidArgument,
-                None,
-            );
-            *error_str = create_error_cstr(error);
-            return 1;
-        }
-    };
-    let target_sae_id = match CStr::from_ptr(target_sae_id).to_str() {
-        Ok(id) => id,
-        Err(utf8error) => {
-            let error = Error::new(
-                "target_sae_id is not valid UTF8".to_string(),
-                InvalidArgument,
-                Some(Box::new(utf8error)),
-            );
-            *error_str = create_error_cstr(error);
-            return 1;
-        }
-    };
-    let mut key_ids_vec = Vec::with_capacity(key_ids_len);
-    let key_ids = std::slice::from_raw_parts(key_ids, key_ids_len);
-    for (i, &ptr) in key_ids.iter().enumerate() {
-        let key_id = match CStr::from_ptr(ptr).to_str() {
+    unsafe {
+        let client = match client.as_ref() {
+            Some(client) => client,
+            None => {
+                let error = Error::new(
+                    "Null pointer passed to get_status".to_string(),
+                    InvalidArgument,
+                    None,
+                );
+                *error_str = create_error_cstr(error);
+                return 1;
+            }
+        };
+        let target_sae_id = match CStr::from_ptr(target_sae_id).to_str() {
             Ok(id) => id,
             Err(utf8error) => {
                 let error = Error::new(
-                    format!("Key ID {i} is not valid UTF8"),
+                    "target_sae_id is not valid UTF8".to_string(),
                     InvalidArgument,
                     Some(Box::new(utf8error)),
                 );
@@ -367,37 +359,53 @@ pub unsafe extern "C" fn e14_get_keys_by_ids(
                 return 1;
             }
         };
-        key_ids_vec.push(key_id);
-    }
-    let keys = std::slice::from_raw_parts_mut(keys, key_ids_len);
-    let get_keys_result =
-        block_on(client.get_keys_by_ids(target_sae_id, key_ids_vec.as_slice()));
-    match get_keys_result {
-        Ok(keys_recv) => {
-            let keys_recv_len = keys_recv.len();
-            if keys_recv_len != key_ids_len {
-                *error_str = create_error_cstr(Error::new(
-                    format!("Got {keys_recv_len} instead of {key_ids_len} keys"),
-                    InvalidResponse,
-                    None,
-                ));
-                return 1;
-            }
-            for (i, (uuid_string, key_vec)) in keys_recv.into_iter().enumerate() {
-                let uuid = match create_cstr(uuid_string) {
-                    Ok(uuid) => uuid,
-                    Err(e) => {
-                        *error_str = create_error_cstr(e);
-                        return 1;
-                    }
-                };
-                keys[i] = key_vec_to_ckey(uuid, key_vec)
-            }
-            0
+        let mut key_ids_vec = Vec::with_capacity(key_ids_len);
+        let key_ids = std::slice::from_raw_parts(key_ids, key_ids_len);
+        for (i, &ptr) in key_ids.iter().enumerate() {
+            let key_id = match CStr::from_ptr(ptr).to_str() {
+                Ok(id) => id,
+                Err(utf8error) => {
+                    let error = Error::new(
+                        format!("Key ID {i} is not valid UTF8"),
+                        InvalidArgument,
+                        Some(Box::new(utf8error)),
+                    );
+                    *error_str = create_error_cstr(error);
+                    return 1;
+                }
+            };
+            key_ids_vec.push(key_id);
         }
-        Err(e) => {
-            *error_str = create_error_cstr(e);
-            1
+        let keys = std::slice::from_raw_parts_mut(keys, key_ids_len);
+        let get_keys_result =
+            block_on(client.get_keys_by_ids(target_sae_id, key_ids_vec.as_slice()));
+        match get_keys_result {
+            Ok(keys_recv) => {
+                let keys_recv_len = keys_recv.len();
+                if keys_recv_len != key_ids_len {
+                    *error_str = create_error_cstr(Error::new(
+                        format!("Got {keys_recv_len} instead of {key_ids_len} keys"),
+                        InvalidResponse,
+                        None,
+                    ));
+                    return 1;
+                }
+                for (i, (uuid_string, key_vec)) in keys_recv.into_iter().enumerate() {
+                    let uuid = match create_cstr(uuid_string) {
+                        Ok(uuid) => uuid,
+                        Err(e) => {
+                            *error_str = create_error_cstr(e);
+                            return 1;
+                        }
+                    };
+                    keys[i] = key_vec_to_ckey(uuid, key_vec)
+                }
+                0
+            }
+            Err(e) => {
+                *error_str = create_error_cstr(e);
+                1
+            }
         }
     }
 }
@@ -408,67 +416,77 @@ pub unsafe extern "C" fn e14_get_keys_by_ids(
 /// * immediately after you are done reading/writing to key_bytes.
 /// * before calling this function again.
 /// * before calling [`e14_free_qkd_key_bytes`].
-#[no_mangle]
+#[unsafe(no_mangle)]
 #[allow(dyn_drop)]
 pub unsafe extern "C" fn e14_unprotect_qkd_key_bytes(
     key_bytes_protected: *const KeyBytesProtected,
     key_bytes_borrow: *mut *const KeyBytesBorrow,
     key_bytes: *mut *const u8,
 ) {
-    let qkd_key_vec = key_bytes_protected as *mut SecretVec<u8>;
-    if qkd_key_vec.is_null() {
-        return;
+    unsafe {
+        let qkd_key_vec = key_bytes_protected as *mut SecretVec<u8>;
+        if qkd_key_vec.is_null() {
+            return;
+        }
+        let mut ref_mut = (*qkd_key_vec).borrow_mut();
+        *key_bytes = ref_mut.as_mut_ptr();
+        let drop_box: Box<dyn Drop> = Box::new(ref_mut);
+        let borrow = Box::into_raw(Box::new(drop_box));
+        *key_bytes_borrow = borrow as *const KeyBytesBorrow;
     }
-    let mut ref_mut = (*qkd_key_vec).borrow_mut();
-    *key_bytes = ref_mut.as_mut_ptr();
-    let drop_box: Box<dyn Drop> = Box::new(ref_mut);
-    let borrow = Box::into_raw(Box::new(drop_box));
-    *key_bytes_borrow = borrow as *const KeyBytesBorrow;
 }
 
 /// Prevent read and write access to key_bytes.
-#[no_mangle]
+#[unsafe(no_mangle)]
 #[allow(dyn_drop)]
 pub unsafe extern "C" fn e14_protect_qkd_key_bytes(
     borrow: *mut *const KeyBytesBorrow,
     key_bytes: *mut *const u8,
 ) {
-    let borrow_drop = borrow as *mut *mut Box<dyn Drop>;
-    if borrow_drop.is_null() || (*borrow_drop).is_null() {
-        return;
+    unsafe {
+        let borrow_drop = borrow as *mut *mut Box<dyn Drop>;
+        if borrow_drop.is_null() || (*borrow_drop).is_null() {
+            return;
+        }
+        let _ = Box::from_raw(*borrow_drop);
+        *borrow = std::ptr::null();
+        *key_bytes = std::ptr::null();
     }
-    let _ = Box::from_raw(*borrow_drop);
-    *borrow = std::ptr::null();
-    *key_bytes = std::ptr::null();
 }
 
 /// Will overwrite qkd key and deallocate memory.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn e14_free_qkd_key_bytes(
     key_bytes_protected: *mut *const KeyBytesProtected,
 ) {
-    let qkd_key_vec = key_bytes_protected as *mut *const SecretVec<u8>;
-    if qkd_key_vec.is_null() || (*qkd_key_vec).is_null() {
-        return;
+    unsafe {
+        let qkd_key_vec = key_bytes_protected as *mut *const SecretVec<u8>;
+        if qkd_key_vec.is_null() || (*qkd_key_vec).is_null() {
+            return;
+        }
+        let _ = Box::from_raw(*qkd_key_vec as *mut SecretVec<u8>);
+        *qkd_key_vec = std::ptr::null();
     }
-    let _ = Box::from_raw(*qkd_key_vec as *mut SecretVec<u8>);
-    *qkd_key_vec = std::ptr::null();
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn e14_free_error_str(error_str: *mut *const c_char) {
-    if error_str.is_null() || (*error_str).is_null() {
-        return;
+    unsafe {
+        if error_str.is_null() || (*error_str).is_null() {
+            return;
+        }
+        let _ = CString::from_raw(*error_str as *mut c_char);
+        *error_str = std::ptr::null();
     }
-    let _ = CString::from_raw(*error_str as *mut c_char);
-    *error_str = std::ptr::null();
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn e14_free_etsi014_client(client: *mut *const ETSI014Client) {
-    if client.is_null() || (*client).is_null() {
-        return;
+    unsafe {
+        if client.is_null() || (*client).is_null() {
+            return;
+        }
+        let _ = Box::from_raw(*client as *mut ETSI014Client);
+        *client = std::ptr::null();
     }
-    let _ = Box::from_raw(*client as *mut ETSI014Client);
-    *client = std::ptr::null();
 }

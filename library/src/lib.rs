@@ -12,6 +12,7 @@ pub use secrets::SecretVec;
 pub use status::Status;
 
 pub mod etsi014_client {
+    use crate::Error;
     use crate::error::ErrorType::{
         ConnectionError, InvalidArgument, InvalidHost, InvalidResponse,
     };
@@ -22,7 +23,6 @@ pub mod etsi014_client {
     use crate::json::status_response::StatusResponse;
     use crate::status::Status;
     use crate::utils::read_file;
-    use crate::Error;
     use base64ct::{Base64, Encoding};
     use reqwest::header::CONTENT_TYPE;
     use reqwest::{Client, Identity, Url};

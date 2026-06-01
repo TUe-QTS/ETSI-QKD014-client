@@ -1,14 +1,14 @@
 [package]
 name = "etsi014-client"
 version = "0.1.2"
-edition = "2021"
+edition = "2024"
 description = "ETSI GS QKD 014 client library"
 readme = "../README.md"
 repository = "https://github.com/TUe-QTS/ETSI-QKD014-client"
 keywords = ["etsi", "qkd"]
 categories = ["api-bindings", "cryptography"]
 license = "MIT"
-rust-version = "1.74.1"
+rust-version = "1.85.0"
 
 [lib]
 crate-type = ["lib", "cdylib"]

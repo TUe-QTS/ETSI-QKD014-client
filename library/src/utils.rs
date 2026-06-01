@@ -1,5 +1,5 @@
-use crate::error::ErrorType::InvalidArgument;
 use crate::Error;
+use crate::error::ErrorType::InvalidArgument;
 use std::fs;
 use std::path::PathBuf;
 
