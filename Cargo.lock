@@ -304,7 +304,7 @@ dependencies = [
 
 [[package]]
 name = "etsi014-client"
-version = "0.1.2"
+version = "0.2.0"
 dependencies = [
  "base64ct",
  "cbindgen",

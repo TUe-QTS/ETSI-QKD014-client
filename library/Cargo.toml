@@ -1,6 +1,6 @@
 [package]
 name = "etsi014-client"
-version = "0.1.2"
+version = "0.2.0"
 edition = "2024"
 description = "ETSI GS QKD 014 client library"
 readme = "../README.md"
